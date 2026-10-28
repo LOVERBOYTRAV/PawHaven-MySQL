@@ -563,16 +563,33 @@ def init_db_command():
     print("Database tables are ready.")
 
 
+
 @app.route("/health")
 def health():
     try:
         with get_db() as conn:
-            conn.execute("SELECT 1")
-        return {"status": "ok", "database": "connected"}, 200
+            cursor = conn.execute("SELECT 1 AS test")
+            result = cursor.fetchone()
+            cursor.close()
+
+        if not result or result.get("test") != 1:
+            app.logger.error(
+                "Health check failed: SELECT 1 returned an unexpected result"
+            )
+            return {
+                "status": "error",
+                "database": "unexpected result"
+            }, 503
+
+        return {
+            "status": "ok",
+            "database": "connected"
+        }, 200
+
     except Exception:
-        return {"status": "error", "database": "unavailable"}, 503
+        app.logger.exception("Health check failed")
+        return {
+            "status": "error",
+            "database": "unavailable"
+        }, 503
 
-
-if __name__ == "__main__":
-    init_db()
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")), debug=False)
