@@ -10,9 +10,9 @@ services:
       - key: MYSQLHOST
         sync: false
       - key: MYSQLPORT
-        value: "3306"
+       value: "24596"
       - key: MYSQLDATABASE
-        value: pawhaven_db
+        value: defaultdb
       - key: MYSQLUSER
         sync: false
       - key: MYSQLPASSWORD
